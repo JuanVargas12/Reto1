@@ -27,8 +27,10 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
 assert cf
-from tabulate import tabulate
 import traceback
+from tabulate import tabulate
+import model
+#from tabulate import tabulate
 
 """
 La vista se encarga de la interacción con el usuario
@@ -42,8 +44,8 @@ def new_controller():
     """
         Se crea una instancia del controlador
     """
-    #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    control = controller.new_controller()
+    return control
 
 
 def print_menu():
@@ -57,38 +59,39 @@ def print_menu():
     print("7- Ejecutar Requerimiento 6")
     print("8- Ejecutar Requerimiento 7")
     print("9- Ejecutar Requerimiento 8")
+    print("10- Obtener dato dado un ID")
     print("0- Salir")
 
 
-def load_data(control):
+def load_data(control, file):
     """
     Carga los datos
     """
-    #TODO: Realizar la carga de datos
-    pass
+    data = controller.load_data(control, file)
+    return data
 
 
 def print_data(control, id):
     """
         Función que imprime un dato dado su ID
     """
-    #TODO: Realizar la función para imprimir un elemento
-    pass
+    data = controller.get_data(control, id)
+    print("El dato con el ID", id, "es:", data)
+
 
 def print_req_1(control):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
-
-
+    return(controller.req_1(control))
+     
 def print_req_2(control):
     """
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    pass
+    return controller.req_2(control)
 
 
 def print_req_3(control):
@@ -96,15 +99,14 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
-
+    print(controller.req_3(control))
 
 def print_req_4(control):
     """
         Función que imprime la solución del Requerimiento 4 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 4
-    pass
+    print(controller.req_4(control))
 
 
 def print_req_5(control):
@@ -112,7 +114,7 @@ def print_req_5(control):
         Función que imprime la solución del Requerimiento 5 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    print(controller.req_5(control))
 
 
 def print_req_6(control):
@@ -120,7 +122,7 @@ def print_req_6(control):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    print(controller.req_6(control))
 
 
 def print_req_7(control):
@@ -128,17 +130,69 @@ def print_req_7(control):
         Función que imprime la solución del Requerimiento 7 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    print(controller.req_7(control))
 
+def tipo_de_datos():
+    lista = int(input("Ingresa el tipo de lista:\n1.Arreglo\n2.Lista encadenada\n"))
+    
+    if lista == 1:
+        dato = "ARRAY_LIST"
+    elif lista == 2:
+        dato = "SINGLE_LINKED"
+    else:
+        print("opcion invalida")
+
+    controlador = new_controller(dato)
+    return controlador
+
+def tamano():
+    porcentaje = int(input("Ingresa el proctenaje:\n1.0.50%\n2. 5%\n3. 10%\n4. 20%\n5. 30%\n6. 50%\n7. 80%\n8. 100%\n"))
+    
+    if porcentaje == 1:
+        dato = "small"
+    if porcentaje == 2:
+        dato = "5pct"
+    if porcentaje == 3:
+        dato = "10pct"
+    if porcentaje == 4:
+        dato = "20pct"
+    if porcentaje == 5:
+        dato = "30pct"
+    if porcentaje == 6:
+        dato = "50pct"
+    if porcentaje == 7:
+        dato = "80pct"
+    if porcentaje == 8:
+        dato = "large"
+
+    ruta = f"/Salida_agregados_renta_juridicos_AG-{dato}.csv"
+    return ruta
 
 def print_req_8(control):
     """
         Función que imprime la solución del Requerimiento 8 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 8
-    pass
+    tipo = tipo_de_datos()
+    size = tamano()
+    data = controller.cargainpu(tipo, size)
+        
+    ordenamiento = int(input(f"Que tipo de ordenamiento deseas hacer?\n1.Insertion\n2.Selection\n3.Shell\n4.Quick\n5.Merge"))
+    if ordenamiento == 1:
+        order = "INS"
+    if ordenamiento == 2:
+        order = "SE"
+    if ordenamiento == 3:
+        order = "SHELL"
+    if ordenamiento == 4:
+        order = "QUICK"
+    if ordenamiento == 5:
+        order = "MERGE"
 
 
+    datos = controller.req_8(tipo, order)
+    print("El tamaño de la muestra es: ", data)
+    print("El tiempo de ejecución del programa fue: ", datos[1]) 
 # Se crea el controlador asociado a la vista
 control = new_controller()
 
@@ -155,12 +209,31 @@ if __name__ == "__main__":
         try:
             if int(inputs) == 1:
                 print("Cargando información de los archivos ....\n")
-                data = load_data(control)
+                file = "/Salida_agregados_renta_juridicos_AG-small.csv"
+                data, tamanodata = load_data(control["model"], file)
+                print(tamanodata)
+                # esta separando numeros de las ultimas columnas con coma en los miles
+                intformats = [
+                    "","","","","","","",",",",",",",","
+                    ]
+                datos = controller.convertir(data)
+                datos_tabulados = tabulate(datos, tablefmt="grid", headers=["Año", "Código actividad económica", "Nombre actividad económica", "Código sector económico", "Nombre sector económico", "Código subsector económico", "Nombre subsector económico", "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"], maxheadercolwidths=8, maxcolwidths=8,intfmt= intformats)
+                print(datos_tabulados)
             elif int(inputs) == 2:
-                print_req_1(control)
-
+                datos = print_req_1(data)
+                intformats = [
+                    "","","","","","","",",",",",",",","
+                    ]
+                datos_tabulados = tabulate(datos, tablefmt="grid", headers=["Año", "Código actividad económica", "Nombre actividad económica", "Código sector económico", "Nombre sector económico", "Código subsector económico", "Nombre subsector económico", "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"], maxheadercolwidths=8, maxcolwidths=8,intfmt= intformats)
+                print(datos_tabulados)
+                
             elif int(inputs) == 3:
-                print_req_2(control)
+                datos = print_req_2(data)
+                intformats = [
+                    "","","","","","","",",",",",",",","
+                    ]
+                datos_tabulados = tabulate(datos, tablefmt="grid", headers=["Año", "Código actividad económica", "Nombre actividad económica", "Código sector económico", "Nombre sector económico", "Código subsector económico", "Nombre subsector económico", "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"], maxheadercolwidths=8, maxcolwidths=8,intfmt= intformats)
+                print(datos_tabulados)
 
             elif int(inputs) == 4:
                 print_req_3(control)
@@ -180,13 +253,17 @@ if __name__ == "__main__":
             elif int(inputs) == 9:
                 print_req_8(control)
 
+            elif int(inputs) == 10:
+                id = input("Ingrese un id: ")
+                print_data(control, id)
+
             elif int(inputs) == 0:
-                working = False
+                working = (False)
                 print("\nGracias por utilizar el programa")
                 
             else:
                 print("Opción errónea, vuelva a elegir.\n")
-        except Exception as exp:
-            print("ERR:", exp)
+        except ValueError:
+            print("Ingrese una opción válida.\n")
             traceback.print_exc()
     sys.exit(0)
